@@ -13,10 +13,16 @@ using IConnection connection = factory.CreateConnection();
 using IModel channel = connection.CreateModel();
 
 //Queue Oluşturma
-channel.QueueDeclare(queue: "example 1", exclusive: false);
+channel.QueueDeclare(queue: "example 1", exclusive: false, autoDelete: false, durable: true);
 
-//Queue'ya Mesaj Gönderme
-byte[] message = Encoding.UTF8.GetBytes("Message 4");
-channel.BasicPublish(exchange: "", routingKey: "example 1", body: message);
+IBasicProperties properties = channel.CreateBasicProperties();
+properties.Persistent = true;
+
+for (int i = 0; i < 100; i++)
+{
+    //Queue'ya Mesaj Gönderme
+    byte[] message = Encoding.UTF8.GetBytes("Message " + i);
+    channel.BasicPublish(exchange: "", routingKey: "example 1", body: message, basicProperties: properties);
+}
 
 Console.ReadKey();
