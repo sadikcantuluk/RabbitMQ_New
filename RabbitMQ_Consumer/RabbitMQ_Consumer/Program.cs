@@ -12,13 +12,15 @@ using IConnection connection = factory.CreateConnection();
 using IModel channel = connection.CreateModel();
 
 // 1.Adım Exchange Oluşturma
-channel.ExchangeDeclare(exchange: "direct-exchange-example", type: ExchangeType.Direct);
+channel.ExchangeDeclare(exchange: "fanout-example", type: ExchangeType.Fanout);
 
 // 2.Adım Kuyruk Oluşturma
-var queueName = channel.QueueDeclare().QueueName;
+Console.Write("Kuyruk ismini giirn :");
+var queueName = Console.ReadLine();
+channel.QueueDeclare(queue: queueName, exclusive: false);
 
 // 3.Adım Bind İşlemini Yapma
-channel.QueueBind(queue: queueName, exchange: "direct-exchange-example", routingKey: "direct-key");
+channel.QueueBind(queue: queueName, exchange: "fanout-example", routingKey: string.Empty);
 
 // Queue'dan Mesaj Okuma
 EventingBasicConsumer consumer = new(channel);
