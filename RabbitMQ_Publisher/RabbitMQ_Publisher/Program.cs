@@ -13,15 +13,24 @@ using IConnection connection = factory.CreateConnection();
 using IModel channel = connection.CreateModel();
 
 //Exchange Oluşturma
-channel.ExchangeDeclare(exchange: "topic-example", type: ExchangeType.Topic);
+channel.ExchangeDeclare(exchange: "header-example", type: ExchangeType.Headers);
+
 
 //Mesaj Gönderme
 for (int i = 0; i < 100; i++)
 {
     byte[] bytesMessage = Encoding.UTF8.GetBytes("message " + i);
-    Console.Write("Mesajın gönderileceği topic formatını girin :");
-    string topicKey = Console.ReadLine();
-    channel.BasicPublish(exchange: "topic-example", routingKey: topicKey, body: bytesMessage);
+
+    Console.Write("Mesaj için value değerini girin :");
+    string value = Console.ReadLine();
+
+    IBasicProperties basicProperties = channel.CreateBasicProperties();
+    basicProperties.Headers = new Dictionary<string, object>
+    {
+        ["exampleKey"] = value
+    };
+
+    channel.BasicPublish(exchange: "header-example", routingKey: string.Empty, body: bytesMessage, basicProperties: basicProperties);
 }
 
 Console.Read();

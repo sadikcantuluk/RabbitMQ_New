@@ -12,17 +12,20 @@ using IConnection connection = factory.CreateConnection();
 using IModel channel = connection.CreateModel();
 
 // 1.Adım Exchange Oluşturma
-channel.ExchangeDeclare(exchange: "topic-example", type: ExchangeType.Topic);
+channel.ExchangeDeclare(exchange: "header-example", type: ExchangeType.Headers);
 
 // 2.Adım Kuyruk Oluşturma
 var queueName = channel.QueueDeclare().QueueName;
 
-// 3.Adım Kullanıcıdan Topic Değeri Alma
-Console.Write("Dinlenecek Topic formatını belirtin :");
-string topicKey = Console.ReadLine();
+// 3.Adım Kullanıcıdan Value Değeri Alma
+Console.Write("Alınacak mesaj için value değerini belirtin :");
+string value = Console.ReadLine();
 
 // 4.Adım Bind İşlemini Yapma
-channel.QueueBind(queue: queueName, exchange: "topic-example", routingKey: topicKey);
+channel.QueueBind(queue: queueName, exchange: "header-example", routingKey: string.Empty, arguments:new Dictionary<string, object>
+{
+    ["exampleKey"] = value
+});
 
 // Queue'dan Mesaj Okuma
 EventingBasicConsumer consumer = new(channel);
