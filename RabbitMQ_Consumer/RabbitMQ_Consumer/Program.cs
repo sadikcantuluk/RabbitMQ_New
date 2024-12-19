@@ -12,19 +12,22 @@ using IConnection connection = factory.CreateConnection();
 using IModel channel = connection.CreateModel();
 
 // 1.Adım Exchange Oluşturma
-channel.ExchangeDeclare(exchange: "fanout-example", type: ExchangeType.Fanout);
+channel.ExchangeDeclare(exchange: "topic-example", type: ExchangeType.Topic);
 
 // 2.Adım Kuyruk Oluşturma
-Console.Write("Kuyruk ismini giirn :");
-var queueName = Console.ReadLine();
-channel.QueueDeclare(queue: queueName, exclusive: false);
+var queueName = channel.QueueDeclare().QueueName;
 
-// 3.Adım Bind İşlemini Yapma
-channel.QueueBind(queue: queueName, exchange: "fanout-example", routingKey: string.Empty);
+// 3.Adım Kullanıcıdan Topic Değeri Alma
+Console.Write("Dinlenecek Topic formatını belirtin :");
+string topicKey = Console.ReadLine();
+
+// 4.Adım Bind İşlemini Yapma
+channel.QueueBind(queue: queueName, exchange: "topic-example", routingKey: topicKey);
 
 // Queue'dan Mesaj Okuma
 EventingBasicConsumer consumer = new(channel);
-channel.BasicConsume(queue: queueName, autoAck: true, consumer);
+channel.BasicConsume(queue: queueName, autoAck: true, consumer: consumer);
+
 consumer.Received += (sender, e) =>
 {
     Console.WriteLine(Encoding.UTF8.GetString(e.Body.Span));

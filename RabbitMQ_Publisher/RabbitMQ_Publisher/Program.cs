@@ -13,13 +13,15 @@ using IConnection connection = factory.CreateConnection();
 using IModel channel = connection.CreateModel();
 
 //Exchange Oluşturma
-channel.ExchangeDeclare(exchange: "fanout-example", type: ExchangeType.Fanout);
+channel.ExchangeDeclare(exchange: "topic-example", type: ExchangeType.Topic);
 
 //Mesaj Gönderme
 for (int i = 0; i < 100; i++)
 {
     byte[] bytesMessage = Encoding.UTF8.GetBytes("message " + i);
-    channel.BasicPublish(exchange: "fanout-example", routingKey: string.Empty, body: bytesMessage);
+    Console.Write("Mesajın gönderileceği topic formatını girin :");
+    string topicKey = Console.ReadLine();
+    channel.BasicPublish(exchange: "topic-example", routingKey: topicKey, body: bytesMessage);
 }
 
 Console.Read();
