@@ -12,17 +12,16 @@ factory.Uri = new Uri("amqps://ozxsyaja:p-mAAUXc-eGa5m7NcvEn4r9dqktDIIl-@kebneka
 using IConnection connection = factory.CreateConnection();
 using IModel channel = connection.CreateModel();
 
-//Queue Oluşturma
-channel.QueueDeclare(queue: "example 1", exclusive: false, autoDelete: false, durable: true);
+//Exchange Oluşturma
+channel.ExchangeDeclare(exchange: "direct-exchange-example", type: ExchangeType.Direct);
 
-IBasicProperties properties = channel.CreateBasicProperties();
-properties.Persistent = true;
-
-for (int i = 0; i < 100; i++)
+//Mesaj Gönderme
+while (true)
 {
-    //Queue'ya Mesaj Gönderme
-    byte[] message = Encoding.UTF8.GetBytes("Message " + i);
-    channel.BasicPublish(exchange: "", routingKey: "example 1", body: message, basicProperties: properties);
+    Console.Write("Mesaj Girin :");
+    var message = Console.ReadLine();
+    byte[] bytesMessage = Encoding.UTF8.GetBytes(message);
+    channel.BasicPublish(exchange: "direct-exchange-example", routingKey: "direct-key", body: bytesMessage);
 }
 
-Console.ReadKey();
+Console.Read();
